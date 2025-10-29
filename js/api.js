@@ -114,3 +114,94 @@ async function testSupabaseConnection() {
         return false;
     }
 }
+
+/**
+ * Atualiza o selected_content_id de um post
+ * @param {string} postId - UUID do post
+ * @param {string} contentId - UUID do conteúdo selecionado
+ * @returns {Promise<Object>} - Sucesso ou erro
+ */
+async function updateSelectedContent(postId, contentId) {
+    try {
+        const url = `${CREDENTIALS.SUPABASE_URL}/rest/v1/posts?id=eq.${postId}`;
+
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: getSupabaseHeaders(),
+            body: JSON.stringify({
+                selected_content_id: contentId
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        return { success: true };
+
+    } catch (error) {
+        console.error('Erro ao atualizar conteúdo selecionado:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Dispara geração de conteúdo via webhook
+ * @param {string} postId - UUID do post
+ * @returns {Promise<Object>} - Sucesso ou erro
+ */
+async function generateContent(postId) {
+    try {
+        const response = await fetch(CREDENTIALS.WEBHOOK_GENERATE_CONTENT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                post_id: postId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: Falha ao chamar webhook`);
+        }
+
+        return { success: true };
+
+    } catch (error) {
+        console.error('Erro ao gerar conteúdo:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Dispara geração de imagens via webhook
+ * @param {string} postId - UUID do post
+ * @param {string} contentId - UUID do conteúdo selecionado
+ * @returns {Promise<Object>} - Sucesso ou erro
+ */
+async function generateImages(postId, contentId) {
+    try {
+        const response = await fetch(CREDENTIALS.WEBHOOK_GENERATE_IMAGES, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                post_id: postId,
+                selected_content_id: contentId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: Falha ao chamar webhook`);
+        }
+
+        return { success: true };
+
+    } catch (error) {
+        console.error('Erro ao gerar imagens:', error);
+        return { success: false, error: error.message };
+    }
+}
