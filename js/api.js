@@ -84,7 +84,7 @@ async function fetchPostById(postId) {
 
     const queryParams = {
         id: `eq.${postId}`,
-        select: '*,post_contents(*),post_images(*)'
+        select: '*,post_contents!post_contents_post_id_fkey(*),post_images(*)'
     };
 
     const result = await supabaseGet('/rest/v1/posts', queryParams);
