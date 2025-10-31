@@ -1,4 +1,9 @@
-// Lógica da página de detalhes do post
+// Lógica da página de detalhes do post com geração de conteúdo
+
+// Estado global
+let currentPost = null;
+let selectedContentId = null;
+let autoReloadInterval = null;
 
 // Elementos do DOM
 const container = document.getElementById('postDetailsContainer');
@@ -30,7 +35,19 @@ async function loadPostDetails(postId) {
         return;
     }
 
-    renderPostDetails(result.data);
+    currentPost = result.data;
+    renderPostDetails(currentPost);
+
+    // Verificar se deve iniciar ou parar auto-reload
+    checkAutoReload(currentPost);
+}
+
+/**
+ * Recarrega os dados do post (para atualização manual)
+ */
+async function reloadPost() {
+    if (!currentPost || !currentPost.id) return;
+    await loadPostDetails(currentPost.id);
 }
 
 /**
@@ -47,13 +64,16 @@ function renderPostDetails(post) {
     const infoSection = createInfoSection(post);
     container.appendChild(infoSection);
 
-    // Seção: Conteúdo
+    // Seção: Conteúdo (com estados dinâmicos)
     const contentSection = createContentSection(post);
     container.appendChild(contentSection);
 
     // Seção: Imagens
     const imagesSection = createImagesSection(post);
     container.appendChild(imagesSection);
+
+    // Adicionar event listeners após renderizar
+    attachEventListeners(post);
 }
 
 /**
@@ -132,47 +152,148 @@ function createAdditionalContext(context) {
 }
 
 /**
- * Cria seção de conteúdo
+ * Cria seção de conteúdo com estados dinâmicos
  */
 function createContentSection(post) {
     const section = document.createElement('div');
     section.className = 'detail-section';
+    section.id = 'contentSection';
+
+    const hasContents = post.post_contents && post.post_contents.length > 0;
+    const isGenerating = post.status === 'generating' && !hasContents;
+    const hasSelection = post.selected_content_id !== null;
 
     section.innerHTML = `
         <h2><i class="fas fa-file-lines"></i> Conteúdo Gerado</h2>
-        ${createContentDisplay(post)}
+        ${getContentDisplay(post, hasContents, isGenerating, hasSelection)}
     `;
 
     return section;
 }
 
 /**
- * Cria display do conteúdo
+ * Retorna o HTML apropriado para o estado atual do conteúdo
  */
-function createContentDisplay(post) {
-    if (!post.post_contents || post.post_contents.length === 0) {
+function getContentDisplay(post, hasContents, isGenerating, hasSelection) {
+    // Estado 1: Sem conteúdo
+    if (!hasContents && !isGenerating) {
         return `
             <div class="no-content-message">
                 <i class="fas fa-file-circle-question"></i>
-                <p>Conteúdo ainda não foi gerado</p>
+                <p>Nenhum conteúdo gerado ainda</p>
+                <button class="btn btn-primary btn-generate" id="btnGenerateContent">
+                    <i class="fas fa-magic"></i> Gerar Texto
+                </button>
             </div>
         `;
     }
 
-    // Pegar o conteúdo (normalmente há apenas um)
-    const content = post.post_contents[0].content;
-
-    if (!content) {
+    // Estado 2: Gerando
+    if (isGenerating) {
         return `
-            <div class="no-content-message">
-                <i class="fas fa-file-circle-question"></i>
-                <p>Conteúdo vazio</p>
+            <div class="generating-message">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>
+                    Gerando conteúdo... A página será atualizada automaticamente a cada 10 segundos.
+                </p>
             </div>
         `;
+    }
+
+    // Estado 3: Conteúdos gerados, aguardando seleção
+    if (hasContents && !hasSelection) {
+        return createContentSelectionView(post);
+    }
+
+    // Estado 4: Conteúdo selecionado
+    if (hasContents && hasSelection) {
+        return createContentSelectedView(post);
+    }
+
+    return '';
+}
+
+/**
+ * Cria view de seleção de conteúdo
+ */
+function createContentSelectionView(post) {
+    const contents = post.post_contents;
+
+    if (contents.length < 2) {
+        return `<p class="text-muted">Aguardando geração de conteúdos...</p>`;
     }
 
     return `
-        <div class="content-display">${nl2br(content)}</div>
+        <div class="content-selection-header">
+            Selecione a versão que você prefere:
+        </div>
+
+        <div class="content-cards-grid">
+            ${contents.map((content, index) => createContentCard(content, index, false)).join('')}
+        </div>
+
+        <div class="content-actions">
+            <button class="btn btn-success" id="btnConfirmSelection" disabled>
+                <i class="fas fa-check"></i> Confirmar Seleção
+            </button>
+        </div>
+    `;
+}
+
+/**
+ * Cria card de conteúdo
+ */
+function createContentCard(content, index, isConfirmed) {
+    const isSelected = selectedContentId === content.id;
+    const cardClass = isConfirmed
+        ? (isSelected ? 'selected-confirmed' : 'disabled')
+        : (isSelected ? 'selected' : '');
+
+    return `
+        <div class="content-card ${cardClass}" data-content-id="${content.id}">
+            <div class="content-card-header">
+                <input
+                    type="radio"
+                    name="content-selection"
+                    id="content-${content.id}"
+                    class="content-card-radio"
+                    value="${content.id}"
+                    ${isSelected ? 'checked' : ''}
+                    ${isConfirmed ? 'disabled' : ''}
+                >
+                <label for="content-${content.id}" class="content-card-label">
+                    Versão ${index + 1}
+                </label>
+            </div>
+            <div class="content-card-text">${escapeHtml(content.content)}</div>
+        </div>
+    `;
+}
+
+/**
+ * Cria view de conteúdo selecionado
+ */
+function createContentSelectedView(post) {
+    const contents = post.post_contents;
+    const selectedId = post.selected_content_id;
+
+    return `
+        <div class="content-selection-header selected">
+            <i class="fas fa-check-circle"></i>
+            Versão selecionada:
+        </div>
+
+        <div class="content-cards-grid">
+            ${contents.map((content, index) => {
+                selectedContentId = selectedId;
+                return createContentCard(content, index, true);
+            }).join('')}
+        </div>
+
+        <div class="content-selection-info">
+            <i class="fas fa-info-circle"></i>
+            Seleção confirmada. Gerando imagens...
+        </div>
     `;
 }
 
@@ -182,49 +303,71 @@ function createContentDisplay(post) {
 function createImagesSection(post) {
     const section = document.createElement('div');
     section.className = 'detail-section';
+    section.id = 'imagesSection';
+
+    const hasImages = post.post_images && post.post_images.length > 0;
+    const hasSelection = post.selected_content_id !== null;
+    const isGeneratingImages = hasSelection && !hasImages;
 
     section.innerHTML = `
         <h2><i class="fas fa-images"></i> Imagens Geradas</h2>
-        ${createImagesDisplay(post)}
+        ${getImagesDisplay(post, hasImages, hasSelection, isGeneratingImages)}
     `;
 
     return section;
 }
 
 /**
- * Cria display das imagens
+ * Retorna o HTML apropriado para o estado atual das imagens
  */
-function createImagesDisplay(post) {
-    if (!post.post_images || post.post_images.length === 0) {
+function getImagesDisplay(post, hasImages, hasSelection, isGeneratingImages) {
+    // Gerando imagens
+    if (isGeneratingImages) {
         return `
-            <div class="no-content-message">
-                <i class="fas fa-image"></i>
-                <p>Imagens ainda não foram geradas</p>
+            <div class="generating-message">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>
+                    Gerando imagens... A página será atualizada automaticamente a cada 10 segundos.
+                </p>
             </div>
         `;
     }
 
-    const imagesGrid = document.createElement('div');
-    imagesGrid.className = 'images-grid';
+    // Sem seleção ainda
+    if (!hasSelection) {
+        return `
+            <div class="no-content-message">
+                <i class="fas fa-image"></i>
+                <p>Selecione um conteúdo primeiro para gerar as imagens.</p>
+            </div>
+        `;
+    }
 
-    post.post_images.forEach(image => {
-        const imageCard = createImageCard(image);
-        imagesGrid.appendChild(imageCard);
-    });
+    // Imagens geradas
+    if (hasImages) {
+        return createImagesGrid(post.post_images);
+    }
 
-    const wrapper = document.createElement('div');
-    wrapper.appendChild(imagesGrid);
+    return '';
+}
 
-    return wrapper.innerHTML;
+/**
+ * Cria grid de imagens
+ */
+function createImagesGrid(images) {
+    const imagesHtml = images.map(image => createImageCard(image)).join('');
+
+    return `
+        <div class="images-grid">
+            ${imagesHtml}
+        </div>
+    `;
 }
 
 /**
  * Cria card de imagem
  */
 function createImageCard(image) {
-    const card = document.createElement('div');
-    card.className = `image-card ${image.is_selected ? 'selected' : ''}`;
-
     const providerBadge = `
         <span class="provider-badge">
             ${escapeHtml(translateProvider(image.provider))}
@@ -239,25 +382,212 @@ function createImageCard(image) {
         ? `<div class="image-prompt">${escapeHtml(image.image_prompt)}</div>`
         : '';
 
-    card.innerHTML = `
-        <img
-            src="${escapeHtml(image.image_url)}"
-            alt="Imagem gerada"
-            loading="lazy"
-            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 200%22%3E%3Crect fill=%22%23eee%22 width=%22300%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22%3EImagem não disponível%3C/text%3E%3C/svg%3E'"
-        >
-        <div class="image-card-header">
-            ${providerBadge}
-            ${selectedBadge}
-        </div>
-        ${prompt}
-    `;
+    const cardClass = image.is_selected ? 'selected' : '';
 
-    return card;
+    return `
+        <div class="image-card ${cardClass}">
+            <img
+                src="${escapeHtml(image.image_url)}"
+                alt="Imagem gerada"
+                loading="lazy"
+                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 300 200%22%3E%3Crect fill=%22%23eee%22 width=%22300%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22%3EImagem não disponível%3C/text%3E%3C/svg%3E'"
+            >
+            <div class="image-card-header">
+                ${providerBadge}
+                ${selectedBadge}
+            </div>
+            ${prompt}
+        </div>
+    `;
 }
 
 /**
- * Cria badge de status (reutilizando função de index.js)
+ * Adiciona event listeners após renderização
+ */
+function attachEventListeners(post) {
+    // Botão: Gerar Texto
+    const btnGenerate = document.getElementById('btnGenerateContent');
+    if (btnGenerate) {
+        btnGenerate.addEventListener('click', () => handleGenerateContent(post.id));
+    }
+
+    // Radio buttons: Seleção de conteúdo
+    const radioButtons = document.querySelectorAll('.content-card-radio');
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', handleContentSelection);
+    });
+
+    // Cards: Clicar no card inteiro seleciona
+    const contentCards = document.querySelectorAll('.content-card:not(.disabled)');
+    contentCards.forEach(card => {
+        card.addEventListener('click', (e) => {
+            if (e.target.type !== 'radio') {
+                const radio = card.querySelector('.content-card-radio');
+                if (radio && !radio.disabled) {
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change'));
+                }
+            }
+        });
+    });
+
+    // Botão: Confirmar Seleção
+    const btnConfirm = document.getElementById('btnConfirmSelection');
+    if (btnConfirm) {
+        btnConfirm.addEventListener('click', () => handleConfirmSelection(post.id));
+    }
+}
+
+/**
+ * Handler: Gerar Conteúdo
+ */
+async function handleGenerateContent(postId) {
+    const btn = document.getElementById('btnGenerateContent');
+    if (!btn) return;
+
+    // Desabilitar botão
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+
+    // 1. Atualizar status para "generating"
+    const statusResult = await updatePostStatus(postId, 'generating');
+
+    if (!statusResult.success) {
+        showToast('Erro ao atualizar status', statusResult.error, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-magic"></i> Gerar Texto';
+        return;
+    }
+
+    // 2. Disparar webhook de geração
+    const result = await generateContent(postId);
+
+    if (result.success) {
+        showToast('Geração iniciada!', 'O conteúdo será atualizado automaticamente.', 'success');
+        // Recarregar página para mostrar loading state e iniciar auto-reload
+        setTimeout(reloadPost, 1000);
+    } else {
+        showToast('Erro ao gerar conteúdo', result.error, 'error');
+        // Re-habilitar botão
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-magic"></i> Gerar Texto';
+    }
+}
+
+/**
+ * Handler: Seleção de Conteúdo
+ */
+function handleContentSelection(e) {
+    selectedContentId = e.target.value;
+
+    // Atualizar classes dos cards
+    document.querySelectorAll('.content-card').forEach(card => {
+        const cardContentId = card.getAttribute('data-content-id');
+        if (cardContentId === selectedContentId) {
+            card.classList.add('selected');
+        } else {
+            card.classList.remove('selected');
+        }
+    });
+
+    // Habilitar botão de confirmação
+    const btnConfirm = document.getElementById('btnConfirmSelection');
+    if (btnConfirm) {
+        btnConfirm.disabled = false;
+    }
+}
+
+/**
+ * Handler: Confirmar Seleção
+ */
+async function handleConfirmSelection(postId) {
+    if (!selectedContentId) {
+        showToast('Erro', 'Selecione um conteúdo primeiro', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btnConfirmSelection');
+    if (!btn) return;
+
+    // Desabilitar botão
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Confirmando...';
+
+    // 1. Atualizar selected_content_id no banco
+    const updateResult = await updateSelectedContent(postId, selectedContentId);
+
+    if (!updateResult.success) {
+        showToast('Erro ao salvar seleção', updateResult.error, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Confirmar Seleção';
+        return;
+    }
+
+    // 2. Disparar geração de imagens
+    const generateResult = await generateImages(postId, selectedContentId);
+
+    if (!generateResult.success) {
+        showToast('Erro ao gerar imagens', generateResult.error, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Confirmar Seleção';
+        return;
+    }
+
+    // Sucesso!
+    showToast('Seleção confirmada!', 'As imagens serão atualizadas automaticamente.', 'success');
+
+    // Recarregar página para mostrar loading state e iniciar auto-reload
+    setTimeout(reloadPost, 1000);
+}
+
+/**
+ * Mostra notificação toast
+ */
+function showToast(title, message, type = 'success') {
+    // Criar container se não existir
+    let toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container';
+        document.body.appendChild(toastContainer);
+    }
+
+    // Criar toast
+    const toastId = 'toast-' + Date.now();
+    const toastClass = type === 'success' ? 'toast-success' : 'toast-error';
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+
+    const toastHtml = `
+        <div id="${toastId}" class="toast custom-toast ${toastClass}" role="alert">
+            <div class="toast-header">
+                <i class="fas ${icon} me-2"></i>
+                <strong class="me-auto">${escapeHtml(title)}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body">
+                ${escapeHtml(message)}
+            </div>
+        </div>
+    `;
+
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+
+    // Inicializar e mostrar toast (Bootstrap)
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, {
+        autohide: true,
+        delay: 5000
+    });
+    toast.show();
+
+    // Remover do DOM após fechar
+    toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+    });
+}
+
+/**
+ * Cria badge de status
  */
 function createStatusBadge(status) {
     const badgeClass = getStatusBadgeClass(status);
@@ -271,6 +601,58 @@ function createStatusBadge(status) {
         </span>
     `;
 }
+
+/**
+ * Verifica se deve iniciar ou parar o auto-reload
+ */
+function checkAutoReload(post) {
+    const hasContents = post.post_contents && post.post_contents.length > 0;
+    const isGeneratingContent = post.status === 'generating' && !hasContents;
+
+    const hasImages = post.post_images && post.post_images.length > 0;
+    const hasSelection = post.selected_content_id !== null;
+    const isGeneratingImages = hasSelection && !hasImages;
+
+    // Iniciar auto-reload se estiver gerando conteúdo ou imagens
+    if (isGeneratingContent || isGeneratingImages) {
+        startAutoReload();
+    } else {
+        stopAutoReload();
+    }
+}
+
+/**
+ * Inicia auto-reload a cada 10 segundos
+ */
+function startAutoReload() {
+    // Evitar múltiplos intervals
+    if (autoReloadInterval) {
+        return;
+    }
+
+    console.log('Auto-reload iniciado (10s)');
+
+    autoReloadInterval = setInterval(async () => {
+        console.log('Auto-reload: carregando dados...');
+        await reloadPost();
+    }, 10000); // 10 segundos
+}
+
+/**
+ * Para o auto-reload
+ */
+function stopAutoReload() {
+    if (autoReloadInterval) {
+        console.log('Auto-reload parado');
+        clearInterval(autoReloadInterval);
+        autoReloadInterval = null;
+    }
+}
+
+// Cleanup ao sair da página
+window.addEventListener('beforeunload', () => {
+    stopAutoReload();
+});
 
 // Inicializa ao carregar página
 document.addEventListener('DOMContentLoaded', init);

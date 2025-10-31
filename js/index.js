@@ -203,7 +203,7 @@ function createMetaBadges(post) {
  * Navega para página de detalhes do post
  */
 function navigateToPost(postId) {
-    window.location.href = `post.html?id=${postId}`;
+    window.location.href = `show.html?id=${postId}`;
 }
 
 /**

@@ -84,7 +84,7 @@ async function fetchPostById(postId) {
 
     const queryParams = {
         id: `eq.${postId}`,
-        select: '*,post_contents(*),post_images(*)'
+        select: '*,post_contents!post_contents_post_id_fkey(*),post_images(*)'
     };
 
     const result = await supabaseGet('/rest/v1/posts', queryParams);
@@ -112,5 +112,161 @@ async function testSupabaseConnection() {
     } catch (error) {
         console.error('Falha ao conectar com Supabase:', error);
         return false;
+    }
+}
+
+/**
+ * Atualiza o selected_content_id de um post
+ * @param {string} postId - UUID do post
+ * @param {string} contentId - UUID do conteúdo selecionado
+ * @returns {Promise<Object>} - Sucesso ou erro
+ */
+async function updateSelectedContent(postId, contentId) {
+    try {
+        const url = `${CREDENTIALS.SUPABASE_URL}/rest/v1/posts?id=eq.${postId}`;
+
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: getSupabaseHeaders(),
+            body: JSON.stringify({
+                selected_content_id: contentId
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        return { success: true };
+
+    } catch (error) {
+        console.error('Erro ao atualizar conteúdo selecionado:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Dispara geração de conteúdo via webhook
+ * @param {string} postId - UUID do post
+ * @returns {Promise<Object>} - Sucesso ou erro
+ */
+async function generateContent(postId) {
+    try {
+        const response = await fetch(CREDENTIALS.WEBHOOK_GENERATE_CONTENT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                post_id: postId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: Falha ao chamar webhook`);
+        }
+
+        return { success: true };
+
+    } catch (error) {
+        console.error('Erro ao gerar conteúdo:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Dispara geração de imagens via webhook
+ * @param {string} postId - UUID do post
+ * @param {string} contentId - UUID do conteúdo selecionado
+ * @returns {Promise<Object>} - Sucesso ou erro
+ */
+async function generateImages(postId, contentId) {
+    try {
+        const response = await fetch(CREDENTIALS.WEBHOOK_GENERATE_IMAGES, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                post_id: postId,
+                selected_content_id: contentId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: Falha ao chamar webhook`);
+        }
+
+        return { success: true };
+
+    } catch (error) {
+        console.error('Erro ao gerar imagens:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Cria um novo post no Supabase
+ * @param {Object} postData - Dados do post a ser criado
+ * @returns {Promise<Object>} - Post criado ou erro
+ */
+async function createPost(postData) {
+    try {
+        const url = `${CREDENTIALS.SUPABASE_URL}/rest/v1/posts`;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                ...getSupabaseHeaders(),
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify(postData)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
+
+        // Supabase retorna array com o objeto criado
+        return { success: true, data: data[0] };
+
+    } catch (error) {
+        console.error('Erro ao criar post:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * Atualiza o status de um post
+ * @param {string} postId - UUID do post
+ * @param {string} status - Novo status
+ * @returns {Promise<Object>} - Sucesso ou erro
+ */
+async function updatePostStatus(postId, status) {
+    try {
+        const url = `${CREDENTIALS.SUPABASE_URL}/rest/v1/posts?id=eq.${postId}`;
+
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: getSupabaseHeaders(),
+            body: JSON.stringify({
+                status: status
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        return { success: true };
+
+    } catch (error) {
+        console.error('Erro ao atualizar status do post:', error);
+        return { success: false, error: error.message };
     }
 }

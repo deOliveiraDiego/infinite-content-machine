@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Post - Dashboard LinkedIn</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="container">
+            <h1>
+                <i class="fas fa-chart-line"></i>
+                Dashboard de Publicações LinkedIn
+            </h1>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container detail-page">
+        <!-- Botão Voltar -->
+        <button class="btn btn-outline-secondary back-button" onclick="window.location.href='index.html'">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </button>
+
+        <!-- Título da Página -->
+        <div class="page-title">
+            <h2><i class="fas fa-plus-circle"></i> Criar Novo Post</h2>
+            <p class="text-muted">Preencha as informações abaixo para criar um novo post no LinkedIn</p>
+        </div>
+
+        <!-- Formulário -->
+        <div class="detail-section">
+            <form id="newPostForm">
+                <!-- Tópico (Obrigatório) -->
+                <div class="mb-4">
+                    <label for="topic" class="form-label">
+                        <i class="fas fa-heading"></i> Tópico
+                        <span class="text-danger">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="topic"
+                        name="topic"
+                        placeholder="Ex: Como usar IA para aumentar produtividade"
+                        required
+                    >
+                    <div class="form-text">O tema principal do seu post</div>
+                </div>
+
+                <!-- Objetivo (Obrigatório) -->
+                <div class="mb-4">
+                    <label for="goal" class="form-label">
+                        <i class="fas fa-bullseye"></i> Objetivo
+                        <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" id="goal" name="goal" required>
+                        <option value="">Selecione um objetivo...</option>
+                        <option value="educate">Educar</option>
+                        <option value="inspire">Inspirar</option>
+                        <option value="sell">Vender/Promover</option>
+                        <option value="engage">Engajar</option>
+                    </select>
+                    <div class="form-text">Qual o objetivo principal deste post?</div>
+                </div>
+
+                <!-- Público-alvo (Obrigatório) -->
+                <div class="mb-4">
+                    <label for="target_audience" class="form-label">
+                        <i class="fas fa-users"></i> Público-alvo
+                        <span class="text-danger">*</span>
+                    </label>
+                    <textarea
+                        class="form-control"
+                        id="target_audience"
+                        name="target_audience"
+                        rows="2"
+                        placeholder="Ex: Profissionais de tecnologia, desenvolvedores e engenheiros de software"
+                        required
+                    ></textarea>
+                    <div class="form-text">Descreva quem é o público-alvo deste post</div>
+                </div>
+
+                <!-- Tom (Obrigatório) -->
+                <div class="mb-4">
+                    <label for="tone" class="form-label">
+                        <i class="fas fa-volume-up"></i> Tom
+                        <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" id="tone" name="tone" required>
+                        <option value="">Selecione um tom...</option>
+                        <option value="formal">Formal</option>
+                        <option value="casual">Casual</option>
+                        <option value="hybrid">Híbrido</option>
+                    </select>
+                    <div class="form-text">Qual tom de voz usar no conteúdo?</div>
+                </div>
+
+                <!-- Formato (Obrigatório) -->
+                <div class="mb-4">
+                    <label for="format" class="form-label">
+                        <i class="fas fa-file-alt"></i> Formato
+                        <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" id="format" name="format" required>
+                        <option value="">Selecione um formato...</option>
+                        <option value="storytelling">Storytelling</option>
+                        <option value="list">Lista</option>
+                        <option value="tutorial">Tutorial</option>
+                    </select>
+                    <div class="form-text">Qual formato de conteúdo você prefere?</div>
+                </div>
+
+                <!-- Contexto Adicional (Opcional) -->
+                <div class="mb-4">
+                    <label for="additional_context" class="form-label">
+                        <i class="fas fa-comment-dots"></i> Contexto Adicional
+                        <span class="text-muted">(opcional)</span>
+                    </label>
+                    <textarea
+                        class="form-control"
+                        id="additional_context"
+                        name="additional_context"
+                        rows="4"
+                        placeholder="Adicione informações relevantes, dados, estatísticas ou qualquer contexto que ajude na criação do conteúdo..."
+                    ></textarea>
+                    <div class="form-text">Informações extras para auxiliar na geração do conteúdo</div>
+                </div>
+
+                <!-- CTA (Opcional) -->
+                <div class="mb-4">
+                    <label for="cta" class="form-label">
+                        <i class="fas fa-hand-pointer"></i> Call-to-Action (CTA)
+                        <span class="text-muted">(opcional)</span>
+                    </label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="cta"
+                        name="cta"
+                        placeholder="Ex: Comente abaixo sua experiência, Acesse nosso site para saber mais"
+                    >
+                    <div class="form-text">Chamada para ação ao final do post</div>
+                </div>
+
+                <!-- Link (Opcional) -->
+                <div class="mb-4">
+                    <label for="link" class="form-label">
+                        <i class="fas fa-link"></i> Link
+                        <span class="text-muted">(opcional)</span>
+                    </label>
+                    <input
+                        type="url"
+                        class="form-control"
+                        id="link"
+                        name="link"
+                        placeholder="https://exemplo.com"
+                    >
+                    <div class="form-text">URL para incluir no post</div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='index.html'">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-success" id="submitBtn">
+                        <i class="fas fa-check"></i> Criar Post
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <!-- IMPORTANTE: env.js e credentials.js devem ser carregados primeiro -->
+    <script src="../js/env.js"></script>
+    <script src="../js/credentials.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/new-post.js"></script>
+
+    <!-- Bootstrap 5.3 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

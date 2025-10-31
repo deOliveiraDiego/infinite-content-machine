@@ -1,14 +1,17 @@
-# Dashboard de Publicações LinkedIn - V0
+# Dashboard de Publicações LinkedIn - V1.0
 
-Interface simples para visualizar publicações geradas pelo sistema de conteúdo para LinkedIn.
+Interface completa para gerenciar publicações geradas pelo sistema de conteúdo para LinkedIn.
 
 ## 🎯 Sobre
 
-Este dashboard permite visualizar e gerenciar publicações do LinkedIn de forma simples e intuitiva:
-- **Listagem de posts** com filtros por status
-- **Detalhes completos** de cada publicação (informações, conteúdo e imagens)
-- **Auto-refresh** a cada 30 segundos
+Este dashboard permite criar, visualizar e gerenciar publicações do LinkedIn de forma completa:
+- **CRUD completo** - Criar e gerenciar posts
+- **Geração de conteúdo** com auto-refresh (10s)
+- **Seleção de conteúdo** interativa
+- **Geração de imagens** automática
+- **Filtros por status** (Todos, Pendentes, Publicados, etc)
 - **Design responsivo** para desktop, tablet e mobile
+- **Deploy automático** no Easypanel via GitHub
 
 ## 🚀 Setup Inicial
 
@@ -77,18 +80,28 @@ http://localhost:8000
 
 ```
 /
-├── index.html              # Página de listagem de posts
-├── post.html               # Página de detalhes do post
+├── index.html              # Redirect para posts/index.html
+├── posts/
+│   ├── index.html          # Página de listagem de posts
+│   ├── new.html            # Formulário de criação de post
+│   └── show.html           # Página de detalhes do post
 ├── css/
 │   └── style.css           # Estilos customizados
-└── js/
-    ├── credentials.js      # ⚠️ Credenciais (NÃO COMMITAR)
-    ├── credentials.example.js  # Template de credenciais
-    ├── config.js           # Configurações gerais
-    ├── api.js              # Funções de API Supabase
-    ├── utils.js            # Funções auxiliares
-    ├── index.js            # Lógica da listagem
-    └── post.js             # Lógica dos detalhes
+├── js/
+│   ├── env.js              # Sistema de ENV vars (dev/prod)
+│   ├── credentials.js      # ⚠️ Credenciais locais (NÃO COMMITAR)
+│   ├── credentials.example.js  # Template de credenciais
+│   ├── config.js           # Configurações gerais
+│   ├── api.js              # Funções de API Supabase
+│   ├── utils.js            # Funções auxiliares
+│   ├── index.js            # Lógica da listagem
+│   ├── post.js             # Lógica dos detalhes + auto-refresh
+│   └── new-post.js         # Lógica do formulário de criação
+├── Dockerfile              # Container nginx para produção
+├── docker-entrypoint.sh    # Injeção de ENV vars
+├── nginx.conf              # Configuração do servidor web
+├── .dockerignore           # Otimização do build Docker
+└── DEPLOYMENT.md           # Guia completo de deploy
 ```
 
 ## 🛠️ Tecnologias
@@ -102,22 +115,36 @@ http://localhost:8000
 
 ## 📋 Funcionalidades
 
-### Página de Listagem (index.html)
+### Página de Listagem (posts/index.html)
 
 - ✅ Grid responsivo de cards (3 colunas → 2 → 1)
 - ✅ Filtros por status (Todos, Pendentes, Publicados, etc.)
+- ✅ Botão "Novo Post" para criar posts
 - ✅ Badges coloridos de status com ícones
 - ✅ Preview do conteúdo
 - ✅ Auto-refresh a cada 30 segundos
 - ✅ Estados: loading, empty, error
 
-### Página de Detalhes (post.html)
+### Página de Criação (posts/new.html)
+
+- ✅ Formulário completo com validação
+- ✅ Campos obrigatórios: Tópico, Objetivo, Público-alvo, Tom, Formato
+- ✅ Campos opcionais: Contexto, CTA, Link
+- ✅ Selects para campos pré-definidos
+- ✅ Validação de URL em tempo real
+- ✅ Feedback visual de sucesso/erro
+- ✅ Redirecionamento automático após criar
+
+### Página de Detalhes (posts/show.html)
 
 - ✅ Informações completas do post
-- ✅ Conteúdo gerado formatado
+- ✅ Botão "Gerar Texto" (dispara N8N)
+- ✅ **Auto-refresh a cada 10s** durante geração
+- ✅ Seleção interativa de conteúdo (versões)
+- ✅ Geração automática de imagens após seleção
 - ✅ Galeria de imagens (2 colunas)
 - ✅ Destaque da imagem selecionada
-- ✅ Campos opcionais tratados (CTA, Link, Contexto)
+- ✅ Loading states inteligentes (sem botões manuais)
 
 ## 🎨 Personalização
 
@@ -201,22 +228,41 @@ O dashboard espera as seguintes tabelas:
 - updated_at (timestamp)
 ```
 
-## 🚧 Limitações (V0)
+## 🚀 Deploy em Produção
 
-Esta é uma versão inicial focada apenas em **visualização**. Não inclui:
-- ❌ Autenticação/Login
-- ❌ Criação de posts
-- ❌ Edição de posts
-- ❌ Aprovação/Publicação
-- ❌ Paginação
-- ❌ Busca/Pesquisa
-- ❌ Exportação de dados
+Este projeto está pronto para deploy no **Easypanel** com deploy automático via GitHub.
+
+### Deploy Rápido
+
+1. Faça push para a branch `main`
+2. Configure o app no Easypanel (ver guia completo abaixo)
+3. Adicione as variáveis de ambiente
+4. Deploy automático acontece a cada push!
+
+### Guia Completo de Deploy
+
+📖 **Veja o guia detalhado**: [DEPLOYMENT.md](DEPLOYMENT.md)
+
+O guia inclui:
+- Conexão do GitHub com Easypanel
+- Configuração de variáveis de ambiente
+- Setup de domínio e SSL
+- Troubleshooting completo
+
+### Variáveis de Ambiente Necessárias
+
+```bash
+SUPABASE_URL=https://seu-projeto.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+WEBHOOK_GENERATE_CONTENT=https://seu-n8n.com/webhook/generate-content
+WEBHOOK_GENERATE_IMAGES=https://seu-n8n.com/webhook/generate-images
+```
 
 ## 📝 Próximos Passos (Roadmap)
 
 Para versões futuras, considere adicionar:
 - 🔐 Sistema de autenticação
-- ✏️ Editor de posts
+- ✏️ Edição de posts existentes
 - ✅ Fluxo de aprovação
 - 🔍 Busca e filtros avançados
 - 📄 Paginação

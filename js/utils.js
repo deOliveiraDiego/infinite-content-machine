@@ -132,6 +132,7 @@ function formatDate(dateString) {
     const diffMinutes = Math.floor(diffSeconds / 60);
     const diffHours = Math.floor(diffMinutes / 60);
     const diffDays = Math.floor(diffHours / 24);
+    console.log('Date difference:', { diffSeconds, diffMinutes, diffHours, diffDays });
 
     // Se mais de 7 dias, mostrar formato absoluto
     if (diffDays > CONFIG.DATE_FORMATS.RELATIVE_THRESHOLD_DAYS) {
