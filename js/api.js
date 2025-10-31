@@ -19,6 +19,11 @@ function getSupabaseHeaders() {
  */
 async function supabaseGet(endpoint, queryParams = {}) {
     try {
+        // Validar credenciais antes de construir URL
+        if (!CREDENTIALS.SUPABASE_URL) {
+            throw new Error('SUPABASE_URL não configurada. Configure as variáveis de ambiente.');
+        }
+
         // Construir URL com query params
         const url = new URL(`${CREDENTIALS.SUPABASE_URL}${endpoint}`);
 
@@ -123,6 +128,10 @@ async function testSupabaseConnection() {
  */
 async function updateSelectedContent(postId, contentId) {
     try {
+        if (!CREDENTIALS.SUPABASE_URL) {
+            throw new Error('SUPABASE_URL não configurada. Configure as variáveis de ambiente.');
+        }
+
         const url = `${CREDENTIALS.SUPABASE_URL}/rest/v1/posts?id=eq.${postId}`;
 
         const response = await fetch(url, {
@@ -153,6 +162,10 @@ async function updateSelectedContent(postId, contentId) {
  */
 async function generateContent(postId) {
     try {
+        if (!CREDENTIALS.WEBHOOK_GENERATE_CONTENT) {
+            throw new Error('WEBHOOK_GENERATE_CONTENT não configurado. Configure as variáveis de ambiente.');
+        }
+
         const response = await fetch(CREDENTIALS.WEBHOOK_GENERATE_CONTENT, {
             method: 'POST',
             headers: {
@@ -183,6 +196,10 @@ async function generateContent(postId) {
  */
 async function generateImages(postId, contentId) {
     try {
+        if (!CREDENTIALS.WEBHOOK_GENERATE_IMAGES) {
+            throw new Error('WEBHOOK_GENERATE_IMAGES não configurado. Configure as variáveis de ambiente.');
+        }
+
         const response = await fetch(CREDENTIALS.WEBHOOK_GENERATE_IMAGES, {
             method: 'POST',
             headers: {
@@ -213,6 +230,10 @@ async function generateImages(postId, contentId) {
  */
 async function createPost(postData) {
     try {
+        if (!CREDENTIALS.SUPABASE_URL) {
+            throw new Error('SUPABASE_URL não configurada. Configure as variáveis de ambiente.');
+        }
+
         const url = `${CREDENTIALS.SUPABASE_URL}/rest/v1/posts`;
 
         const response = await fetch(url, {
@@ -248,6 +269,10 @@ async function createPost(postData) {
  */
 async function updatePostStatus(postId, status) {
     try {
+        if (!CREDENTIALS.SUPABASE_URL) {
+            throw new Error('SUPABASE_URL não configurada. Configure as variáveis de ambiente.');
+        }
+
         const url = `${CREDENTIALS.SUPABASE_URL}/rest/v1/posts?id=eq.${postId}`;
 
         const response = await fetch(url, {
