@@ -3,63 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Publicações LinkedIn</title>
+    <title>Infinite Content Machine</title>
+    <meta name="description" content="Geração infinita de conteúdo para LinkedIn">
 
-    <!-- Bootstrap 5.3 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS v3 via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'linkedin': {
+                            DEFAULT: '#0A66C2',
+                            dark: '#004182',
+                            light: '#378FE9'
+                        },
+                        'linkedin-bg': '#F3F2EF'
+                    }
+                }
+            }
+        }
+    </script>
 
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
+<body class="bg-linkedin-bg min-h-screen">
     <!-- Header -->
-    <header class="app-header">
-        <div class="container">
-            <h1>
-                <i class="fas fa-chart-line"></i>
-                Dashboard de Publicações LinkedIn
+    <header class="sticky top-0 bg-white shadow-sm z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-2xl md:text-3xl font-semibold text-gray-800 flex items-center gap-3">
+                <i class="fas fa-infinity text-linkedin"></i>
+                Infinite Content Machine
             </h1>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="container">
+    <main class="max-w-7xl mx-auto px-4 md:px-6 py-8">
         <!-- Barra de Filtros e Ações -->
-        <div class="filters-bar">
-            <div class="d-flex flex-wrap align-items-center justify-content-between">
-                <div class="filter-buttons">
-                    <button class="btn filter-btn active" data-filter="all">
-                        <i class="fas fa-list"></i> Todos
+        <div class="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-6">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <!-- Filtros -->
+                <div class="flex flex-wrap gap-2">
+                    <button class="filter-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-linkedin text-white shadow-sm" data-filter="all">
+                        <i class="fas fa-list"></i>
+                        <span class="ml-2">Todos</span>
                     </button>
-                    <button class="btn filter-btn" data-filter="pending_review">
-                        <i class="fas fa-hourglass-half"></i> Pendentes
+                    <button class="filter-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200" data-filter="pending_review">
+                        <i class="fas fa-hourglass-half"></i>
+                        <span class="ml-2">Pendentes</span>
                     </button>
-                    <button class="btn filter-btn" data-filter="published">
-                        <i class="fas fa-check-double"></i> Publicados
+                    <button class="filter-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200" data-filter="published">
+                        <i class="fas fa-check-double"></i>
+                        <span class="ml-2">Publicados</span>
                     </button>
-                    <button class="btn filter-btn" data-filter="generating">
-                        <i class="fas fa-spinner"></i> Gerando
+                    <button class="filter-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200" data-filter="generating">
+                        <i class="fas fa-spinner"></i>
+                        <span class="ml-2">Gerando</span>
                     </button>
-                    <button class="btn filter-btn" data-filter="failed">
-                        <i class="fas fa-triangle-exclamation"></i> Falhados
+                    <button class="filter-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200" data-filter="failed">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        <span class="ml-2">Falhados</span>
                     </button>
                 </div>
-                <div class="mt-2 mt-md-0">
-                    <button class="btn btn-success me-2" onclick="window.location.href='new.html'">
-                        <i class="fas fa-plus"></i> Novo Post
+
+                <!-- Ações -->
+                <div class="flex gap-2">
+                    <button onclick="window.location.href='new.html'" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-sm transition-all duration-200 shadow-sm">
+                        <i class="fas fa-plus"></i>
+                        <span class="ml-2">Novo Post</span>
                     </button>
-                    <button class="btn btn-primary" id="refreshBtn">
-                        <i class="fas fa-sync-alt"></i> Atualizar
+                    <button id="refreshBtn" class="px-4 py-2 bg-linkedin hover:bg-linkedin-dark text-white rounded-lg font-medium text-sm transition-all duration-200 shadow-sm">
+                        <i class="fas fa-sync-alt"></i>
+                        <span class="ml-2 hidden sm:inline">Atualizar</span>
                     </button>
                 </div>
             </div>
         </div>
 
         <!-- Container de Posts -->
-        <div id="postsContainer">
+        <div id="postsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <!-- Posts serão renderizados aqui via JavaScript -->
         </div>
     </main>
@@ -72,8 +98,5 @@
     <script src="../js/api.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/index.js"></script>
-
-    <!-- Bootstrap 5.3 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

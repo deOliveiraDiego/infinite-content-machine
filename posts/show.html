@@ -3,33 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalhes da Publicação - Dashboard LinkedIn</title>
+    <title>Detalhes - Infinite Content Machine</title>
 
-    <!-- Bootstrap 5.3 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS v3 via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'linkedin': {
+                            DEFAULT: '#0A66C2',
+                            dark: '#004182',
+                            light: '#378FE9'
+                        },
+                        'linkedin-bg': '#F3F2EF'
+                    }
+                }
+            }
+        }
+    </script>
 
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
+<body class="bg-linkedin-bg min-h-screen">
     <!-- Header -->
-    <header class="app-header">
-        <div class="container">
-            <h1>
-                <i class="fas fa-chart-line"></i>
-                Dashboard de Publicações LinkedIn
+    <header class="sticky top-0 bg-white shadow-sm z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-2xl md:text-3xl font-semibold text-gray-800 flex items-center gap-3">
+                <i class="fas fa-infinity text-linkedin"></i>
+                Infinite Content Machine
             </h1>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="container detail-page">
+    <main class="max-w-6xl mx-auto px-4 md:px-6 py-8">
         <!-- Botão Voltar -->
-        <button class="btn btn-outline-secondary back-button" onclick="window.location.href='index.html'">
-            <i class="fas fa-arrow-left"></i> Voltar
+        <button onclick="window.location.href='index.html'" class="mb-6 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg font-medium text-sm hover:bg-gray-50 transition-all duration-200">
+            <i class="fas fa-arrow-left mr-2"></i>Voltar
         </button>
 
         <!-- Container de Detalhes -->
@@ -46,8 +61,5 @@
     <script src="../js/api.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/post.js"></script>
-
-    <!-- Bootstrap 5.3 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

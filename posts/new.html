@@ -3,179 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Novo Post - Dashboard LinkedIn</title>
+    <title>Novo Post - Infinite Content Machine</title>
 
-    <!-- Bootstrap 5.3 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS v3 via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'linkedin': {
+                            DEFAULT: '#0A66C2',
+                            dark: '#004182',
+                            light: '#378FE9'
+                        },
+                        'linkedin-bg': '#F3F2EF'
+                    }
+                }
+            }
+        }
+    </script>
 
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
+<body class="bg-linkedin-bg min-h-screen">
     <!-- Header -->
-    <header class="app-header">
-        <div class="container">
-            <h1>
-                <i class="fas fa-chart-line"></i>
-                Dashboard de Publicações LinkedIn
+    <header class="sticky top-0 bg-white shadow-sm z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-2xl md:text-3xl font-semibold text-gray-800 flex items-center gap-3">
+                <i class="fas fa-infinity text-linkedin"></i>
+                Infinite Content Machine
             </h1>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="container detail-page">
+    <main class="max-w-4xl mx-auto px-4 md:px-6 py-8">
         <!-- Botão Voltar -->
-        <button class="btn btn-outline-secondary back-button" onclick="window.location.href='index.html'">
-            <i class="fas fa-arrow-left"></i> Voltar
+        <button onclick="window.location.href='index.html'" class="mb-6 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg font-medium text-sm hover:bg-gray-50 transition-all duration-200">
+            <i class="fas fa-arrow-left mr-2"></i>Voltar
         </button>
 
         <!-- Título da Página -->
-        <div class="page-title">
-            <h2><i class="fas fa-plus-circle"></i> Criar Novo Post</h2>
-            <p class="text-muted">Preencha as informações abaixo para criar um novo post no LinkedIn</p>
+        <div class="mb-6">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                <i class="fas fa-plus-circle text-linkedin"></i>
+                Criar Novo Post
+            </h2>
+            <p class="text-gray-600">Preencha as informações abaixo para criar um novo post no LinkedIn</p>
         </div>
 
         <!-- Formulário -->
-        <div class="detail-section">
-            <form id="newPostForm">
+        <div class="bg-white rounded-lg shadow-sm p-6 md:p-8">
+            <form id="newPostForm" class="space-y-6">
                 <!-- Tópico (Obrigatório) -->
-                <div class="mb-4">
-                    <label for="topic" class="form-label">
-                        <i class="fas fa-heading"></i> Tópico
-                        <span class="text-danger">*</span>
+                <div>
+                    <label for="topic" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-heading text-linkedin"></i> Tópico
+                        <span class="text-red-500 ml-1">*</span>
                     </label>
                     <input
                         type="text"
-                        class="form-control"
+                        class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-linkedin focus:ring-2 focus:ring-blue-100 outline-none transition-all duration-200"
                         id="topic"
                         name="topic"
                         placeholder="Ex: Como usar IA para aumentar produtividade"
                         required
                     >
-                    <div class="form-text">O tema principal do seu post</div>
+                    <p class="mt-1.5 text-xs text-gray-500">O tema principal do seu post</p>
                 </div>
 
                 <!-- Objetivo (Obrigatório) -->
-                <div class="mb-4">
-                    <label for="goal" class="form-label">
-                        <i class="fas fa-bullseye"></i> Objetivo
-                        <span class="text-danger">*</span>
+                <div>
+                    <label for="goal" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-bullseye text-linkedin"></i> Objetivo
+                        <span class="text-red-500 ml-1">*</span>
                     </label>
-                    <select class="form-select" id="goal" name="goal" required>
+                    <select
+                        class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-linkedin focus:ring-2 focus:ring-blue-100 outline-none transition-all duration-200 bg-white"
+                        id="goal"
+                        name="goal"
+                        required
+                    >
                         <option value="">Selecione um objetivo...</option>
                         <option value="educate">Educar</option>
                         <option value="inspire">Inspirar</option>
                         <option value="sell">Vender/Promover</option>
                         <option value="engage">Engajar</option>
                     </select>
-                    <div class="form-text">Qual o objetivo principal deste post?</div>
+                    <p class="mt-1.5 text-xs text-gray-500">Qual o objetivo principal deste post?</p>
                 </div>
 
                 <!-- Público-alvo (Obrigatório) -->
-                <div class="mb-4">
-                    <label for="target_audience" class="form-label">
-                        <i class="fas fa-users"></i> Público-alvo
-                        <span class="text-danger">*</span>
+                <div>
+                    <label for="target_audience" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-users text-linkedin"></i> Público-alvo
+                        <span class="text-red-500 ml-1">*</span>
                     </label>
                     <textarea
-                        class="form-control"
+                        class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-linkedin focus:ring-2 focus:ring-blue-100 outline-none transition-all duration-200 resize-vertical"
                         id="target_audience"
                         name="target_audience"
                         rows="2"
                         placeholder="Ex: Profissionais de tecnologia, desenvolvedores e engenheiros de software"
                         required
                     ></textarea>
-                    <div class="form-text">Descreva quem é o público-alvo deste post</div>
+                    <p class="mt-1.5 text-xs text-gray-500">Descreva quem é o público-alvo deste post</p>
                 </div>
 
                 <!-- Tom (Obrigatório) -->
-                <div class="mb-4">
-                    <label for="tone" class="form-label">
-                        <i class="fas fa-volume-up"></i> Tom
-                        <span class="text-danger">*</span>
+                <div>
+                    <label for="tone" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-volume-up text-linkedin"></i> Tom
+                        <span class="text-red-500 ml-1">*</span>
                     </label>
-                    <select class="form-select" id="tone" name="tone" required>
+                    <select
+                        class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-linkedin focus:ring-2 focus:ring-blue-100 outline-none transition-all duration-200 bg-white"
+                        id="tone"
+                        name="tone"
+                        required
+                    >
                         <option value="">Selecione um tom...</option>
                         <option value="formal">Formal</option>
                         <option value="casual">Casual</option>
                         <option value="hybrid">Híbrido</option>
                     </select>
-                    <div class="form-text">Qual tom de voz usar no conteúdo?</div>
+                    <p class="mt-1.5 text-xs text-gray-500">Qual tom de voz usar no conteúdo?</p>
                 </div>
 
                 <!-- Formato (Obrigatório) -->
-                <div class="mb-4">
-                    <label for="format" class="form-label">
-                        <i class="fas fa-file-alt"></i> Formato
-                        <span class="text-danger">*</span>
+                <div>
+                    <label for="format" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-file-alt text-linkedin"></i> Formato
+                        <span class="text-red-500 ml-1">*</span>
                     </label>
-                    <select class="form-select" id="format" name="format" required>
+                    <select
+                        class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-linkedin focus:ring-2 focus:ring-blue-100 outline-none transition-all duration-200 bg-white"
+                        id="format"
+                        name="format"
+                        required
+                    >
                         <option value="">Selecione um formato...</option>
                         <option value="storytelling">Storytelling</option>
                         <option value="list">Lista</option>
                         <option value="tutorial">Tutorial</option>
                     </select>
-                    <div class="form-text">Qual formato de conteúdo você prefere?</div>
+                    <p class="mt-1.5 text-xs text-gray-500">Qual formato de conteúdo você prefere?</p>
                 </div>
 
                 <!-- Contexto Adicional (Opcional) -->
-                <div class="mb-4">
-                    <label for="additional_context" class="form-label">
-                        <i class="fas fa-comment-dots"></i> Contexto Adicional
-                        <span class="text-muted">(opcional)</span>
+                <div>
+                    <label for="additional_context" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-comment-dots text-linkedin"></i> Contexto Adicional
+                        <span class="text-gray-500 font-normal ml-1">(opcional)</span>
                     </label>
                     <textarea
-                        class="form-control"
+                        class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-linkedin focus:ring-2 focus:ring-blue-100 outline-none transition-all duration-200 resize-vertical"
                         id="additional_context"
                         name="additional_context"
                         rows="4"
                         placeholder="Adicione informações relevantes, dados, estatísticas ou qualquer contexto que ajude na criação do conteúdo..."
                     ></textarea>
-                    <div class="form-text">Informações extras para auxiliar na geração do conteúdo</div>
+                    <p class="mt-1.5 text-xs text-gray-500">Informações extras para auxiliar na geração do conteúdo</p>
                 </div>
 
                 <!-- CTA (Opcional) -->
-                <div class="mb-4">
-                    <label for="cta" class="form-label">
-                        <i class="fas fa-hand-pointer"></i> Call-to-Action (CTA)
-                        <span class="text-muted">(opcional)</span>
+                <div>
+                    <label for="cta" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-hand-pointer text-linkedin"></i> Call-to-Action (CTA)
+                        <span class="text-gray-500 font-normal ml-1">(opcional)</span>
                     </label>
                     <input
                         type="text"
-                        class="form-control"
+                        class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-linkedin focus:ring-2 focus:ring-blue-100 outline-none transition-all duration-200"
                         id="cta"
                         name="cta"
                         placeholder="Ex: Comente abaixo sua experiência, Acesse nosso site para saber mais"
                     >
-                    <div class="form-text">Chamada para ação ao final do post</div>
+                    <p class="mt-1.5 text-xs text-gray-500">Chamada para ação ao final do post</p>
                 </div>
 
                 <!-- Link (Opcional) -->
-                <div class="mb-4">
-                    <label for="link" class="form-label">
-                        <i class="fas fa-link"></i> Link
-                        <span class="text-muted">(opcional)</span>
+                <div>
+                    <label for="link" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-link text-linkedin"></i> Link
+                        <span class="text-gray-500 font-normal ml-1">(opcional)</span>
                     </label>
                     <input
                         type="url"
-                        class="form-control"
+                        class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-linkedin focus:ring-2 focus:ring-blue-100 outline-none transition-all duration-200"
                         id="link"
                         name="link"
                         placeholder="https://exemplo.com"
                     >
-                    <div class="form-text">URL para incluir no post</div>
+                    <p class="mt-1.5 text-xs text-gray-500">URL para incluir no post</p>
                 </div>
 
                 <!-- Botões de Ação -->
-                <div class="form-actions">
-                    <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='index.html'">
-                        <i class="fas fa-times"></i> Cancelar
+                <div class="flex gap-3 pt-4">
+                    <button
+                        type="button"
+                        onclick="window.location.href='index.html'"
+                        class="flex-1 px-6 py-3 bg-white border-2 border-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-all duration-200"
+                    >
+                        <i class="fas fa-times mr-2"></i>Cancelar
                     </button>
-                    <button type="submit" class="btn btn-success" id="submitBtn">
-                        <i class="fas fa-check"></i> Criar Post
+                    <button
+                        type="submit"
+                        id="submitBtn"
+                        class="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-all duration-200 shadow-sm"
+                    >
+                        <i class="fas fa-check mr-2"></i>Criar Post
                     </button>
                 </div>
             </form>
@@ -190,8 +231,5 @@
     <script src="../js/api.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/new-post.js"></script>
-
-    <!-- Bootstrap 5.3 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

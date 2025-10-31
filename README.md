@@ -1,16 +1,18 @@
-# Dashboard de Publicações LinkedIn - V1.0
+# Infinite Content Machine - V1.1
 
-Interface completa para gerenciar publicações geradas pelo sistema de conteúdo para LinkedIn.
+Interface minimalista para gerenciar publicações geradas automaticamente para LinkedIn.
 
 ## 🎯 Sobre
 
-Este dashboard permite criar, visualizar e gerenciar publicações do LinkedIn de forma completa:
-- **CRUD completo** - Criar e gerenciar posts
+Infinite Content Machine permite criar e gerenciar conteúdo LinkedIn de forma infinita e automatizada:
+- **CRUD completo** - Criar e gerenciar posts via interface
 - **Geração de conteúdo** com auto-refresh (10s)
-- **Seleção de conteúdo** interativa
-- **Geração de imagens** automática
-- **Filtros por status** (Todos, Pendentes, Publicados, etc)
-- **Design responsivo** para desktop, tablet e mobile
+- **Seleção de conteúdo** interativa com múltiplas opções
+- **Geração de imagens** automática com AI
+- **Filtros por status** (Todos, Pendentes, Publicados, Gerando, Falhados)
+- **Design minimalista** com Tailwind CSS
+- **Cores LinkedIn** (#0A66C2) para identidade visual
+- **Responsivo** para desktop, tablet e mobile
 - **Deploy automático** no Easypanel via GitHub
 
 ## 🚀 Setup Inicial
@@ -107,11 +109,12 @@ http://localhost:8000
 ## 🛠️ Tecnologias
 
 - **HTML5** puro
-- **CSS3** puro
+- **Tailwind CSS 3** (via CDN) - Design minimalista
 - **JavaScript Vanilla** (sem frameworks)
-- **Bootstrap 5.3** (via CDN)
-- **Font Awesome 6** (via CDN)
+- **Font Awesome 6** (via CDN) - Ícones
 - **Supabase** (PostgreSQL + REST API)
+- **N8N Webhooks** - Geração de conteúdo e imagens
+- **Docker + nginx** - Deploy em produção
 
 ## 📋 Funcionalidades
 

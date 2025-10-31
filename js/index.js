@@ -46,9 +46,11 @@ function setActiveFilter(filter) {
 
     filterButtons.forEach(button => {
         if (button.getAttribute('data-filter') === filter) {
-            button.classList.add('active');
+            // Ativo: azul LinkedIn
+            button.className = 'filter-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-linkedin text-white shadow-sm';
         } else {
-            button.classList.remove('active');
+            // Inativo: cinza
+            button.className = 'filter-btn px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200';
         }
     });
 }
@@ -98,16 +100,12 @@ function filterPosts(filter) {
  * Renderiza a lista de posts
  */
 function renderPosts(posts) {
-    const grid = document.createElement('div');
-    grid.className = 'posts-grid';
+    postsContainer.innerHTML = '';
 
     posts.forEach(post => {
         const card = createPostCard(post);
-        grid.appendChild(card);
+        postsContainer.appendChild(card);
     });
-
-    postsContainer.innerHTML = '';
-    postsContainer.appendChild(grid);
 }
 
 /**
@@ -115,7 +113,7 @@ function renderPosts(posts) {
  */
 function createPostCard(post) {
     const card = document.createElement('div');
-    card.className = 'post-card';
+    card.className = 'bg-white rounded-lg border border-gray-200 p-5 cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-md flex flex-col h-full';
     card.onclick = () => navigateToPost(post.id);
 
     // Status badge
@@ -133,23 +131,23 @@ function createPostCard(post) {
         : 'Sem contexto adicional';
 
     card.innerHTML = `
-        <div class="post-card-header">
+        <div class="flex items-start justify-between mb-3">
             ${statusBadge}
-            <span class="post-date">${escapeHtml(dateText)}</span>
+            <span class="text-xs text-gray-500">${escapeHtml(dateText)}</span>
         </div>
 
-        <h3 class="post-title">${escapeHtml(post.topic || 'Sem título')}</h3>
+        <h3 class="text-lg font-semibold text-gray-800 mb-3">${escapeHtml(post.topic || 'Sem título')}</h3>
 
-        <div class="post-meta">
+        <div class="flex flex-wrap gap-2 mb-3">
             ${metaBadges}
         </div>
 
-        <div class="post-preview">
+        <div class="text-sm text-gray-600 mb-4 flex-grow">
             ${escapeHtml(preview)}
         </div>
 
-        <div class="post-card-footer">
-            <button class="btn btn-primary btn-view-details">
+        <div class="mt-auto">
+            <button class="w-full px-4 py-2 bg-linkedin hover:bg-linkedin-dark text-white rounded-lg font-medium text-sm transition-all duration-200">
                 Ver Detalhes
             </button>
         </div>
@@ -162,16 +160,33 @@ function createPostCard(post) {
  * Cria badge de status
  */
 function createStatusBadge(status) {
-    const badgeClass = getStatusBadgeClass(status);
+    const colors = getStatusColors(status);
     const icon = getStatusIcon(status);
     const text = translateStatus(status);
 
     return `
-        <span class="post-status-badge ${badgeClass}">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${colors}">
             <i class="fas ${icon}"></i>
             ${escapeHtml(text)}
         </span>
     `;
+}
+
+/**
+ * Retorna as cores Tailwind para cada status
+ */
+function getStatusColors(status) {
+    const statusColors = {
+        'pending_generation': 'bg-gray-100 text-gray-700',
+        'generating': 'bg-blue-100 text-blue-700',
+        'generated': 'bg-cyan-100 text-cyan-700',
+        'pending_review': 'bg-yellow-100 text-yellow-700',
+        'approved': 'bg-linkedin text-white',
+        'published': 'bg-green-100 text-green-700',
+        'failed': 'bg-red-100 text-red-700'
+    };
+
+    return statusColors[status] || 'bg-gray-100 text-gray-700';
 }
 
 /**
@@ -181,19 +196,19 @@ function createMetaBadges(post) {
     const badges = [];
 
     if (post.goal) {
-        badges.push(`<span class="post-meta-badge">${escapeHtml(translateGoal(post.goal))}</span>`);
+        badges.push(`<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">${escapeHtml(translateGoal(post.goal))}</span>`);
     }
 
     if (post.target_audience) {
-        badges.push(`<span class="post-meta-badge">${escapeHtml(post.target_audience)}</span>`);
+        badges.push(`<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">${escapeHtml(post.target_audience)}</span>`);
     }
 
     if (post.tone) {
-        badges.push(`<span class="post-meta-badge">${escapeHtml(translateTone(post.tone))}</span>`);
+        badges.push(`<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">${escapeHtml(translateTone(post.tone))}</span>`);
     }
 
     if (post.format) {
-        badges.push(`<span class="post-meta-badge">${escapeHtml(translateFormat(post.format))}</span>`);
+        badges.push(`<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">${escapeHtml(translateFormat(post.format))}</span>`);
     }
 
     return badges.join('');
