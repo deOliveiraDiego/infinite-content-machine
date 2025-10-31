@@ -21,13 +21,15 @@ else
     echo "✓ Variáveis de ambiente detectadas"
 fi
 
-# Criar arquivo JavaScript com as variáveis de ambiente
-# Este arquivo será injetado ANTES de env.js carregar
-ENV_FILE="/usr/share/nginx/html/js/env-injected.js"
+# Substituir placeholders diretamente no arquivo credentials.js
+# Isso evita expor as variáveis em window.ENV
+CREDENTIALS_FILE="/usr/share/nginx/html/js/credentials.js"
 
-cat > "$ENV_FILE" <<EOF
-// Variáveis de ambiente injetadas pelo Docker
-window.ENV = {
+# Criar o arquivo credentials.js com as variáveis de ambiente
+cat > "$CREDENTIALS_FILE" <<EOF
+// Credenciais geradas automaticamente pelo Docker
+// Este arquivo é sobrescrito em produção com as variáveis de ambiente
+window.CREDENTIALS = {
     SUPABASE_URL: "${SUPABASE_URL:-}",
     SUPABASE_ANON_KEY: "${SUPABASE_ANON_KEY:-}",
     WEBHOOK_GENERATE_CONTENT: "${WEBHOOK_GENERATE_CONTENT:-}",
@@ -35,25 +37,19 @@ window.ENV = {
 };
 EOF
 
-echo "✓ Variáveis de ambiente injetadas em: $ENV_FILE"
+echo "✓ Credenciais injetadas diretamente em: $CREDENTIALS_FILE"
 
-# Atualizar os HTMLs para carregar env-injected.js ANTES de env.js
-# Isso garante que window.ENV esteja disponível
-HTML_FILES=(
-    "/usr/share/nginx/html/posts/index.html"
-    "/usr/share/nginx/html/posts/new.html"
-    "/usr/share/nginx/html/posts/show.html"
-)
+# Criar arquivo env-injected.js vazio (para não quebrar o HTML)
+ENV_FILE="/usr/share/nginx/html/js/env-injected.js"
+cat > "$ENV_FILE" <<EOF
+// Arquivo vazio - as credenciais são injetadas diretamente em credentials.js
+EOF
 
-for html_file in "${HTML_FILES[@]}"; do
-    if [ -f "$html_file" ]; then
-        # Adicionar script tag para env-injected.js antes de env.js
-        if ! grep -q "env-injected.js" "$html_file"; then
-            sed -i 's|<script src="../js/env.js"></script>|<script src="../js/env-injected.js"></script>\n    <script src="../js/env.js"></script>|g' "$html_file"
-            echo "✓ Atualizado: $html_file"
-        fi
-    fi
-done
+if [ -f "$CREDENTIALS_FILE" ]; then
+    echo "✓ Arquivo criado: $CREDENTIALS_FILE"
+else
+    echo "⚠️  ERRO: Falha ao criar $CREDENTIALS_FILE"
+fi
 
 echo "================================"
 echo "✓ Aplicação pronta!"
